@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fluent Quiz — Red Theme</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --fluent-red:#c92a2a;          /* primary */
+      --accent-1:#ff6b6b;           /* lighter red */
+      --accent-2:#ffd166;           /* warm yellow */
+      --accent-3:#6be7ff;           /* cyan pop */
+      --bg:#0f0f12;                 /* dark background for contrast */
+      --card:#121216;
+      --muted: #9aa0a6;
+      --glass: rgba(255,255,255,0.04);
+      --radius:16px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg) 0%, #0b0b0c 60%);color:#fff}
+
+    .wrap{max-width:980px;margin:36px auto;padding:28px;border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 10px 30px rgba(0,0,0,0.6);}
+
+    header{display:flex;gap:18px;align-items:center}
+    .logo{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--fluent-red),var(--accent-1));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;box-shadow:0 6px 18px rgba(200,40,40,0.18)}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    .quiz-card{margin-top:22px;background:var(--card);padding:20px;border-radius:var(--radius);backdrop-filter: blur(6px);}
+
+    .progress{height:12px;background:var(--glass);border-radius:10px;overflow:hidden;margin-bottom:18px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--fluent-red),var(--accent-2));width:0%;transition:width .45s cubic-bezier(.2,.9,.3,1)}
+
+    .question-row{display:flex;align-items:flex-start;gap:18px}
+    .q-num{min-width:52px;height:52px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--fluent-red);border:1px solid rgba(255,255,255,0.03)}
+
+    .q-body{flex:1}
+    .q-text{font-size:18px;margin:6px 0 18px}
+
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .opt{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+    .opt:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+    .opt.selected{outline:3px solid rgba(255,255,255,0.06)}
+
+    .controls{display:flex;align-items:center;justify-content:space-between;margin-top:18px}
+    .btn{padding:10px 14px;border-radius:12px;background:linear-gradient(90deg,var(--fluent-red),var(--accent-1));border:none;color:white;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(201,42,42,0.18)}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
+
+    .meta{font-size:13px;color:var(--muted)}
+
+    .result{display:none;padding:18px;border-radius:12px;margin-top:16px;background:linear-gradient(135deg,var(--accent-2),var(--accent-3));color:#0b0b0b}
+    .result h2{margin:0 0 10px}
+    .badges{display:flex;gap:8px;flex-wrap:wrap}
+    .badge{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.18);font-weight:700}
+
+    footer{margin-top:18px;display:flex;justify-content:space-between;align-items:center}
+
+    @media(max-width:720px){.options{grid-template-columns:1fr}.q-num{display:none}.wrap{margin:18px;padding:18px}}
+  </style>
+</head>
+<body>
+  <div class="wrap" role="application">
+    <header>
+      <div class="logo">F</div>
+      <div>
+        <h1>Fluent Quiz — Red Theme</h1>
+        <p class="lead">A colorful, modern quiz interface that tests knowledge of the Fluent Labs article.</p>
+      </div>
+    </header>
+
+    <section class="quiz-card" id="quiz">
+      <div class="progress" aria-hidden><i id="progressBar"></i></div>
+
+      <div class="question-row">
+        <div class="q-num" id="qIndex">1</div>
+        <div class="q-body">
+          <div class="q-text" id="questionText">Loading question...</div>
+
+          <div class="options" id="options"></div>
+
+          <div class="controls">
+            <div class="meta" id="meta">Question <span id="qNum">1</span> of <span id="qTotal">10</span></div>
+            <div>
+              <button class="btn secondary" id="prevBtn" aria-label="Previous">Prev</button>
+              <button class="btn" id="nextBtn" aria-label="Next">Next</button>
+            </div>
+          </div>
+
+          <div class="result" id="result">
+            <h2 id="resultTitle">You scored 0 / 10</h2>
+            <div class="badges" id="badges"></div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <small class="meta">Theme: Fluent Red · Colorful UI · Built with ❤️</small>
+        <div style="display:flex;gap:8px">
+          <button class="btn secondary" id="restart">Restart</button>
+          <button class="btn secondary" id="showAnswers">Show Answers</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    // Questions (sourced from the Fluent Labs article)
+    const questions = [
+      {q: "What amount did Fluent Labs raise in the funding round?", opts:["$5 million","$10 million","$8 million","$12 million"], a:2},
+      {q: "Which firm led the funding round for Fluent Labs?", opts:["Andreessen Horowitz","Coinbase Ventures","Sequoia Capital","Polychain Capital"], a:3},
+      {q: "Which virtual machines does Fluent's blended execution network support?", opts:["EVM only","Wasm only","EVM, SVM, and Wasm","Bitcoin VM"], a:2},
+      {q: "What major problem is Fluent trying to address in the blockchain development space?", opts:["Lack of DeFi apps","High transaction fees only","Siloed ecosystems and limited VM interoperability","No developer interest"], a:2},
+      {q: "Which of the following is NOT listed as an investor in the round?", opts:["Symbolic Capital","Builder Capital","Benchmark Capital","Nomad Capital"], a:2},
+      {q: "Fluent aims to let users access apps across VMs without what?", opts:["Paying gas fees","Switching wallets","Using bridges","Staking tokens"], a:1},
+      {q: "Approximately how many projects were building in the Fluent ecosystem (per article)?", opts:["20","40","60","100"], a:2},
+      {q: "Which VM paradigm is NOT listed as a target for blending?", opts:["EVM","SVM","Wasm","Tezos VM"], a:3},
+      {q: "What types of applications were mentioned as building on Fluent?", opts:["Only token transfers","Quant trading, Web3-native Product Hunt, DeFi + Rust components","Only gaming dApps","Only NFT marketplaces"], a:1},
+      {q: "Which quote best reflects Fluent's design philosophy?", opts:["We focus only on EVM compatibility.","Users must always switch wallets for each chain.","Fluent lets devs use the best tools for each task … without worrying about compatibility.","We do not support any VM interoperability."], a:2}
+    ];
+
+    // State
+    let idx = 0;
+    const total = questions.length;
+    const answers = Array(total).fill(null);
+
+    // Elements
+    const qIndexEl = document.getElementById('qIndex');
+    const qTextEl = document.getElementById('questionText');
+    const optsEl = document.getElementById('options');
+    const qNumEl = document.getElementById('qNum');
+    const qTotalEl = document.getElementById('qTotal');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const resultCard = document.getElementById('result');
+    const resultTitle = document.getElementById('resultTitle');
+    const badges = document.getElementById('badges');
+    const restartBtn = document.getElementById('restart');
+    const showAnswersBtn = document.getElementById('showAnswers');
+
+    qTotalEl.textContent = total;
+
+    function render(){
+      const item = questions[idx];
+      qIndexEl.textContent = idx+1;
+      qTextEl.textContent = item.q;
+      qNumEl.textContent = idx+1;
+
+      // progress
+      const pct = Math.round(((idx)/total)*100);
+      progressBar.style.width = pct + '%';
+
+      // options
+      optsEl.innerHTML = '';
+      item.opts.forEach((opt, i)=>{
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.type = 'button';
+        btn.innerHTML = `<div style=\"font-weight:700;margin-bottom:6px\">${String.fromCharCode(65+i)}.</div><div style=\"font-size:14px;color:var(--muted)\">${opt}</div>`;
+        if(answers[idx] === i) btn.classList.add('selected');
+        btn.addEventListener('click',()=>{
+          answers[idx] = i;
+          // highlight
+          document.querySelectorAll('.opt').forEach(n=>n.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+        optsEl.appendChild(btn);
+      });
+
+      // buttons
+      prevBtn.disabled = idx === 0;
+      nextBtn.textContent = idx === total-1 ? 'Submit' : 'Next';
+
+      // hide result while navigating
+      resultCard.style.display = 'none';
+    }
+
+    prevBtn.addEventListener('click',()=>{ if(idx>0){idx--;render()} });
+    nextBtn.addEventListener('click',()=>{
+      if(idx < total-1){ idx++; render(); return; }
+      // submit
+      const unanswered = answers.reduce((acc,v,i)=> (v===null?acc.concat(i+1):acc),[]);
+      if(unanswered.length){
+        if(!confirm(`You have ${unanswered.length} unanswered question(s). Submit anyway?`)) return;
+      }
+      showResults();
+    });
+
+    restartBtn.addEventListener('click',()=>{ idx=0; for(let i=0;i<answers.length;i++)answers[i]=null; render(); });
+
+    showAnswersBtn.addEventListener('click',()=>{
+      // show answers inline
+      badges.innerHTML = '';
+      questions.forEach((q,i)=>{
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.textContent = `${i+1}. ${String.fromCharCode(65+q.a)} — ${q.opts[q.a]}`;
+        badges.appendChild(b);
+      });
+      resultCard.style.display = 'block';
+      resultTitle.textContent = 'Answer Key';
+    });
+
+    function showResults(){
+      let score = 0;
+      badges.innerHTML = '';
+      questions.forEach((q,i)=>{
+        const correct = q.a === answers[i];
+        if(correct) score++;
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.textContent = `${i+1}. ${correct? '✔' : '✖'} ${String.fromCharCode(65+q.a)}`;
+        badges.appendChild(b);
+      });
+      resultTitle.textContent = `You scored ${score} / ${total}`;
+      resultCard.style.display = 'block';
+      // animate progress to 100%
+      progressBar.style.width = '100%';
+    }
+
+    // initial render
+    render();
+
+    // keyboard nav
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowRight') nextBtn.click();
+      if(e.key === 'ArrowLeft') prevBtn.click();
+      if(e.key === 'Enter') nextBtn.click();
+    });
+  </script>
+</body>
+</html>
